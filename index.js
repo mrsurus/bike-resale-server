@@ -62,7 +62,16 @@ const client = new MongoClient(uri, { useNewUrlParser: true, useUnifiedTopology:
                 const query = {isSeller:false}
                 const buyer = await usersCollection.find(query).toArray()
                 res.send(buyer)
-            })    
+            })  
+            
+            //delete buyer
+            app.delete('/users/:id',async(req,res)=>{
+                const id = req.params.id
+                const query = {_id:ObjectId(id)}
+                const result = await usersCollection.deleteOne(query)
+                res.send(result)
+            })
+
 
         app.post('/orders',async(req,res)=>{
             const data = req.body;
