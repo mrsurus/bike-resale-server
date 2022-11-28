@@ -25,6 +25,13 @@ const client = new MongoClient(uri, { useNewUrlParser: true, useUnifiedTopology:
             const result = await categoryCollection.find(query).toArray()
             res.send(result);
         })
+
+        app.post('/products',async(req,res)=>{
+            const data = req.body;
+            const products = await productsCollection.insertOne(data)
+            res.send(products)
+        })
+
         app.get('/products/:brand', async(req,res)=>{
             const brand = req.params.brand
             const query = {brand: brand}
