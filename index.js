@@ -57,6 +57,12 @@ const client = new MongoClient(uri, { useNewUrlParser: true, useUnifiedTopology:
                 const seller = await usersCollection.find(query).toArray()
                 res.send(seller)
             })    
+            //find all seller
+            app.get('/users/allbuyer', async(req,res)=> {
+                const query = {isSeller:false}
+                const buyer = await usersCollection.find(query).toArray()
+                res.send(buyer)
+            })    
 
         app.post('/orders',async(req,res)=>{
             const data = req.body;
