@@ -32,19 +32,31 @@ const client = new MongoClient(uri, { useNewUrlParser: true, useUnifiedTopology:
             res.send(products)
         })
 
+        app.get('/products', async(req,res)=>{
+            const email = req.query.email
+            const query = {email: email}
+            const result = await productsCollection.find(query).toArray()
+            res.send(result);
+        })
         app.get('/products/:brand', async(req,res)=>{
             const brand = req.params.brand
             const query = {brand: brand}
             const result = await productsCollection.find(query).toArray()
             res.send(result);
         })
-
+            //if seller
         app.get('/users/seller/:email', async(req,res)=> {
             const email = req.params.email;
             const query = {email:email}
             const user = await usersCollection.findOne(query);
             res.send({ isSeller: user?.isSeller === true})
         })
+            //find all seller
+            app.get('/users/allseller', async(req,res)=> {
+                const query = {isSeller:true}
+                const seller = await usersCollection.find(query).toArray()
+                res.send(seller)
+            })    
 
         app.post('/orders',async(req,res)=>{
             const data = req.body;
