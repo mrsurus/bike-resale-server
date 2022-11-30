@@ -11,7 +11,7 @@ app.use(express.json())
 
 
 const uri = `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASS}@cluster0.nzh9xhl.mongodb.net/?retryWrites=true&w=majority`;
-const client = new MongoClient(uri, { useNewUrlParser: true, useUnifiedTopology: true, serverApi: ServerApiVersion.v1 });
+const client = new MongoClient(uri, { useNewUrlParser: true, useUnifiedTopology: true, });
 
  async function  run(){
     try{
@@ -43,13 +43,20 @@ const client = new MongoClient(uri, { useNewUrlParser: true, useUnifiedTopology:
             const query = {brand: brand}
             const result = await productsCollection.find(query).toArray()
             res.send(result);
+        }) 
+            //if admin
+        app.get('/users/admin/:email', async(req,res)=> {
+            const email = req.params.email;
+            const query = {email:email}
+            const user = await usersCollection.findOne(query);
+            res.send({ isAdmin: user?.role === 'admin'})
         })
             //if seller
         app.get('/users/seller/:email', async(req,res)=> {
             const email = req.params.email;
             const query = {email:email}
             const user = await usersCollection.findOne(query);
-            res.send({ isSeller: user?.isSeller === true})
+            res.send({ isSeller: user?.isSeller === true, isVerified: user?.status=== 'verified'})
         })
             //find all seller
             app.get('/users/allseller', async(req,res)=> {
@@ -71,6 +78,13 @@ const client = new MongoClient(uri, { useNewUrlParser: true, useUnifiedTopology:
                 const result = await usersCollection.deleteOne(query)
                 res.send(result)
             })
+                //if buyer
+        app.get('/users/buyer/:email', async(req,res)=> {
+            const email = req.params.email;
+            const query = {email:email}
+            const user = await usersCollection.findOne(query);
+            res.send({ isBuyer: user?.isSeller === false})
+        })
 
 
         app.post('/orders',async(req,res)=>{
@@ -98,6 +112,19 @@ const client = new MongoClient(uri, { useNewUrlParser: true, useUnifiedTopology:
             const users = await usersCollection.insertOne(data)
             res.send(users)
         })
+            //verify seller
+            app.put('/users/verify/:id',async(req, res)=>{
+                const id = req.params.id;
+                const filter = {_id: ObjectId(id)}
+                const options = {upsert: true}
+                const updateDoc = {
+                    $set: {
+                        status: 'verified'
+                    }
+                }
+                const result  = await usersCollection.updateOne(filter,updateDoc, options)
+                res.send(result)
+            })   
 
     }
     finally{
